@@ -272,8 +272,17 @@
 // TOML_NEVER_INLINE
 #ifdef _MSC_VER
 #define TOML_NEVER_INLINE TOML_DECLSPEC(noinline)
-#elif TOML_GCC || TOML_CLANG || TOML_HAS_ATTR(__noinline__)
+#elif TOML_GCC || TOML_CLANG
+#if defined(__CUDACC__)
+// nvcc doesn't always parse __noinline__,
+// see: https://svn.boost.org/trac/boost/ticket/9392
+#define TOML_NEVER_INLINE TOML_ATTR(noinline)
+#elif defined(__HIP__)
+// See https://github.com/boostorg/config/issues/392
+#define TOML_NEVER_INLINE TOML_ATTR(noinline)
+#else
 #define TOML_NEVER_INLINE TOML_ATTR(__noinline__)
+#endif
 #else
 #define TOML_NEVER_INLINE
 #endif
